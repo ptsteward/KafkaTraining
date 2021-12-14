@@ -1,0 +1,28 @@
+﻿syntax = "proto3";
+
+package Carvana.Sched.Scheduling.Contracts.Kafka;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+option csharp_namespace = "Carvana.Sched.Scheduling.Contracts.Kafka";
+
+message Identity {
+    string IdentityGuid = 1;
+    string IdentityKind = 2;
+}
+
+message Instance {
+    Identity Identity = 1;
+    string InstanceGuid = 2;
+}
+
+message Position {
+    double Longitude = 1;
+    double Latitude = 2;
+}
+
+message TimeBlock {
+    google.protobuf.Timestamp StartUtc = 1;
+    google.protobuf.Duration Duration = 2;
+}

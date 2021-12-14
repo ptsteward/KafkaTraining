@@ -1,0 +1,33 @@
+﻿[
+  {
+    "id": "1",
+    "capabilties": [
+      {
+        "kind": "carry palette",
+        "requirements": [
+          {
+            "kind": "gas",
+            "quantity": 10
+          },
+          {
+            "kind": "nachos",
+            "quantity": 1
+          }
+        ]
+      },
+      {
+        "kind": "carry palette",
+        "requirements": [
+          {
+            "kind": "gas",
+            "quantity": 10
+          },
+          {
+            "kind": "nachos",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  }
+]

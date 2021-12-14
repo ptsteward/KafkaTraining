@@ -1,0 +1,12 @@
+[
+    {
+        "name": "google/protobuf/timestamp.proto",
+        "subject": "google/protobuf/timestamp.proto",
+        "version": 1            
+    },
+    {
+        "name": "google/protobuf/duration.proto",
+        "subject": "google/protobuf/duration.proto",
+        "version": 1            
+    }
+]

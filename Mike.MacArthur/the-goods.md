@@ -1,0 +1,1 @@
+﻿[Kafka Boot Camp Training](https://docs.google.com/spreadsheets/d/1UurgA_DfnpFZpfHj7eT0N1dIeXqueC7isBgi1jLN7UU/edit?usp=sharing)

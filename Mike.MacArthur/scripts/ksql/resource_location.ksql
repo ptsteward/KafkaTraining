@@ -1,0 +1,38 @@
+DROP TABLE IF EXISTS resource_location DELETE TOPIC;
+DROP STREAM IF EXISTS resources_by_location_stream2 DELETE TOPIC;
+DROP STREAM IF EXISTS location_stream;
+DROP STREAM IF EXISTS resource_stream2;
+
+CREATE OR REPLACE STREAM location_stream
+(LocationKey VARCHAR KEY)
+WITH (VALUE_FORMAT='PROTOBUF', KEY_FORMAT='KAFKA', KAFKA_TOPIC='location_topic');
+
+CREATE OR REPLACE STREAM resource_stream2
+(InstanceKey VARCHAR KEY)
+WITH (VALUE_FORMAT='PROTOBUF', KEY_FORMAT='KAFKA', KAFKA_TOPIC='resource_topic');
+
+CREATE STREAM resources_by_location_stream2
+WITH (VALUE_FORMAT='PROTOBUF', KEY_FORMAT='DELIMITED')
+AS SELECT
+    LocationKey,
+    InstanceKey,
+    Instance,
+    Location,
+    Capabilities
+FROM resource_stream r
+INNER JOIN location_stream l
+WITHIN 1 DAYS
+ON r.Location = l.ShortName
+PARTITION BY r.LocationKey, l.InstanceKey
+EMIT CHANGES;
+
+CREATE OR REPLACE TABLE resource_location
+WITH (VALUE_FORMAT='PROTOBUF', KEY_FORMAT='DELIMITED')
+AS SELECT
+    LocationKey,
+    InstanceKey,
+    LATEST_BY_OFFSET(CAST(Instance AS VARCHAR)) AS Instance,
+    LATEST_BY_OFFSET(Location) AS Location,
+    LATEST_BY_OFFSET(CAST(Capabilities AS VARCHAR)) AS Capabilities
+FROM resources_by_location_stream2
+EMIT CHANGES;

@@ -1,0 +1,12 @@
+[
+    {
+        "name": "protos/scheduling/core.proto",
+        "subject": "protos/scheduling/core.proto",
+        "version": 1            
+    },
+    {
+        "name": "protos/scheduling/capability.proto",
+        "subject": "protos/scheduling/capability.proto",
+        "version": 1            
+    }
+]

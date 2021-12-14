@@ -1,0 +1,6 @@
+CREATE OR REPLACE STREAM capability_stream
+WITH (VALUE_FORMAT='PROTOBUF', KAFKA_TOPIC='capability_stream_topic')
+AS SELECT *
+FROM capabilities
+PARTITION BY Identity->IdentityKind
+EMIT CHANGES;

@@ -1,0 +1,58 @@
+DROP TABLE IF EXISTS resources_by_locationX DELETE TOPIC;
+DROP TABLE IF EXISTS resources_by_location2 DELETE TOPIC;
+DROP TABLE IF EXISTS resources_by_location DELETE TOPIC;
+DROP STREAM IF EXISTS resource_stream2 DELETE TOPIC;
+DROP STREAM IF EXISTS resource_stream;
+
+CREATE OR REPLACE STREAM resource_stream
+(MessageKey VARCHAR KEY, Instance Instance, Location VARCHAR, Capabilities ARRAY<Capability>)
+WITH (VALUE_FORMAT='PROTOBUF', KEY_FORMAT='KAFKA', KAFKA_TOPIC='resource_topic');
+
+CREATE OR REPLACE TABLE resource_topic_table
+(MessageKey VARCHAR PRIMARY KEY, Instance Instance, Location VARCHAR, Capabilities ARRAY<Capability>)
+WITH (VALUE_FORMAT='PROTOBUF', KEY_FORMAT='KAFKA', KAFKA_TOPIC='resource_topic');
+
+CREATE OR REPLACE STREAM resource_stream2
+WITH (KEY_FORMAT='DELIMITED')
+AS SELECT
+    Location AS LocationKey,
+    Instance->InstanceGuid AS InstanceKey,
+    Instance,
+    Capabilities
+FROM resource_stream
+PARTITION BY Location, Instance->InstanceGuid;
+
+CREATE OR REPLACE TABLE resources_by_locationX
+WITH (KEY_FORMAT='DELIMITED', PARTITIONS=5, KAFKA_TOPIC='resources_by_location_topicX')
+AS SELECT
+    Location AS LocationKey,
+    Instance->InstanceGuid AS InstanceKey,
+    LATEST_BY_OFFSET(CAST(Instance AS VARCHAR)) AS Instance,
+    LATEST_BY_OFFSET(Location) AS Location,
+    LATEST_BY_OFFSET(CAST(Capabilities AS VARCHAR)) AS Capabilities
+FROM resource_stream
+GROUP BY Location, Instance->InstanceGuid
+EMIT CHANGES;
+
+CREATE OR REPLACE TABLE resources_by_location
+WITH (KEY_FORMAT='DELIMITED', PARTITIONS=5, KAFKA_TOPIC='resources_by_location_topic')
+AS SELECT
+    Location AS LocationKey,
+    Instance->InstanceGuid AS InstanceKey,
+    Instance,
+    Location,
+    Capabilities
+FROM resource_topic_table
+GROUP BY Location, Instance->InstanceGuid;
+
+CREATE OR REPLACE TABLE resources_by_location2
+WITH (KEY_FORMAT='DELIMITED')
+AS SELECT
+    LocationKey,
+    InstanceKey,
+    LATEST_BY_OFFSET(CAST(Instance AS VARCHAR)) AS Instance,
+    LATEST_BY_OFFSET(LocationKey) AS Location,
+    LATEST_BY_OFFSET(CAST(Capabilities AS VARCHAR)) AS Capabilities
+FROM resource_stream2
+GROUP BY LocationKey, InstanceKey
+EMIT CHANGES;

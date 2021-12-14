@@ -1,0 +1,96 @@
+DROP TABLE IF EXISTS test_tables5 DELETE TOPIC;
+DROP TABLE IF EXISTS test_tables4 DELETE TOPIC;
+DROP TABLE IF EXISTS test_tables3 DELETE TOPIC;
+DROP TABLE IF EXISTS test_tables2 DELETE TOPIC;
+DROP TABLE IF EXISTS test_tables DELETE TOPIC;
+DROP STREAM IF EXISTS flatten_stream DELETE TOPIC;
+DROP STREAM IF EXISTS rebuilt_stream DELETE TOPIC;
+DROP STREAM IF EXISTS complex_stream2 DELETE TOPIC;
+DROP STREAM IF EXISTS complex_stream; DELETE TOPIC
+DROP STREAM IF EXISTS test_stream;
+
+CREATE OR REPLACE STREAM test_stream
+(MessageKey VARCHAR KEY)
+WITH (KEY_FORMAT='KAFKA', VALUE_FORMAT='PROTOBUF', KAFKA_TOPIC='test_topic');
+
+CREATE OR REPLACE STREAM complex_stream
+AS SELECT
+    MessageKey,
+    STRUCT(Identity:=Identity, Capabilities:=Capabilities, Testing:=STRUCT(Identity:=Identity, Capabilities:=Capabilities)) AS Complex,
+    Identity,
+    Capabilities
+FROM test_stream
+EMIT CHANGES;
+
+CREATE OR REPLACE STREAM complex_stream2
+AS SELECT
+    MessageKey,
+    STRUCT(Identity:=Identity, Capabilities:=Capabilities, Amap2:=Amap) AS Complex,
+    Identity,
+    Capabilities,
+    Amap
+FROM test_stream
+EMIT CHANGES;
+
+CREATE OR REPLACE STREAM rebuilt_stream
+AS SELECT
+    MessageKey,
+    STRUCT(IdentityGuid := Identity->IdentityGuid, IdentityKind := Identity->IdentityKind) AS Identity,
+    Capabilities
+FROM test_stream
+EMIT CHANGES;
+
+CREATE OR REPLACE STREAM flatten_stream
+AS SELECT
+    MessageKey,
+    Identity,
+    EXPLODE(Capabilities) AS Capability
+FROM test_stream
+EMIT CHANGES;
+
+CREATE OR REPLACE TABLE test_tables
+AS SELECT
+    Identity->IdentityKind,
+    STRUCT(IdentityGuid := LATEST_BY_OFFSET(Identity->IdentityGuid), IdentityKind := LATEST_BY_OFFSET(Identity->IdentityKind)) AS Identity
+FROM flatten_stream
+GROUP BY Identity->IdentityKind
+EMIT CHANGES;
+
+CREATE OR REPLACE TABLE test_tables2
+AS SELECT
+    Identity->IdentityKind,
+    STRUCT(IdentityGuid := LATEST_BY_OFFSET(Identity->IdentityGuid), IdentityKind := LATEST_BY_OFFSET(Identity->IdentityKind)) AS Identity,
+    EXTRACTJSONFIELD(LATEST_BY_OFFSET(CAST(Capabilities AS VARCHAR)), '$[*]') AS Capabilities
+FROM test_stream
+GROUP BY Identity->IdentityKind
+EMIT CHANGES;
+
+CREATE OR REPLACE TABLE test_tables3
+AS SELECT
+    Identity->IdentityKind,
+    STRUCT(IdentityGuid := LATEST_BY_OFFSET(Identity->IdentityGuid), IdentityKind := LATEST_BY_OFFSET(Identity->IdentityKind)) AS Identity,
+    LATEST_BY_OFFSET(Capability) AS Capabilities
+FROM flatten_stream
+GROUP BY Identity->IdentityKind
+EMIT CHANGES;
+
+CREATE OR REPLACE TABLE test_tables4
+AS SELECT
+    Identity->IdentityKind,   
+    LATEST_BY_OFFSET(CAST(Complex AS VARCHAR)) AS Complex, 
+    LATEST_BY_OFFSET(CAST(Identity AS VARCHAR)) AS Identity,
+    LATEST_BY_OFFSET(CAST(Capabilities AS VARCHAR)) AS Capabilities
+FROM complex_stream
+GROUP BY Identity->IdentityKind
+EMIT CHANGES;
+
+CREATE OR REPLACE TABLE test_tables5
+AS SELECT
+    Identity->IdentityKind,   
+    LATEST_BY_OFFSET(CAST(Complex AS VARCHAR)) AS Complex, 
+    LATEST_BY_OFFSET(CAST(Identity AS VARCHAR)) AS Identity,
+    LATEST_BY_OFFSET(CAST(Capabilities AS VARCHAR)) AS Capabilities,
+    LATEST_BY_OFFSET(CAST(Amap AS VARCHAR)) AS Amap
+FROM complex_stream2
+GROUP BY Identity->IdentityKind
+EMIT CHANGES;
