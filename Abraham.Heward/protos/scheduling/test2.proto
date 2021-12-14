@@ -1,0 +1,21 @@
+﻿syntax = "proto3";
+
+package Carvana.Sched.Scheduling.Contracts.Kafka;
+
+import "protos/scheduling/core.proto";
+import "protos/scheduling/test.proto";
+
+option csharp_namespace = "Carvana.Sched.Scheduling.Contracts.Kafka";
+
+message Test2 {
+    Test3 Complex = 1;
+    Identity Identity = 2;
+    repeated string Capabilities = 3;
+    map<string, TestX> Amap = 4;
+}
+
+message Test3 {
+    Identity Identity = 1;
+    repeated string Capabilities = 2;
+    map<int32, TestX> Amap2 = 3;
+}

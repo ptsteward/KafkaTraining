@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+
+package Carvana.Sched.Scheduling.Contracts.Kafka;
+
+option csharp_namespace = "Carvana.Sched.Scheduling.Contracts.Kafka";
+
+message Truck {
+	string Id = 1;
+	repeated Capability Capabilities = 2;
+}
+
+message Capability {
+	string Kind = 1;
+	repeated Requirement Requirements = 2;
+}
+
+message Requirement {
+	string Kind = 1;
+	int32 Quantity = 2;
+}
