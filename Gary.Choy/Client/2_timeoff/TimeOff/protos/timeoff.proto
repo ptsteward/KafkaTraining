@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option csharp_namespace = "TimeOff.Models";
+
+message LeaveApplicationReceived {
+    string emp_email = 1;
+    string emp_department = 2;
+    int32 leave_duration_in_hours = 3;
+    int64 leave_start_date_ticks = 4;
+}
