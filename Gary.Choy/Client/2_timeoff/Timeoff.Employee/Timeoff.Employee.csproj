@@ -6,10 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="protos\timeoff.proto" />
-  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Confluent.Kafka" Version="1.8.2" />
 		<PackageReference Include="Confluent.SchemaRegistry.Serdes.Protobuf" Version="1.8.2" />
@@ -22,6 +18,6 @@
 		<PackageReference Include="ReadLine" Version="2.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Protobuf Include="protos\timeoff.proto" />
+	  <ProjectReference Include="..\Timeoff.Models\Timeoff.Models.csproj" />
 	</ItemGroup>
 </Project>

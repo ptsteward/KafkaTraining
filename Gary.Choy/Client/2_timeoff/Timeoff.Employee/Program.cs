@@ -6,13 +6,17 @@ using System.Globalization;
 using System.Net;
 using TimeOff.Models;
 
-class EmployeeTimeOff
+/// <summary>
+/// Timeoff Employee
+/// </summary>
+/// <seealso cref="https://thecloudblog.net/post/event-driven-architecture-with-apache-kafka-for-net-developers-part-1-event-producer/"/>
+class TimeoffEmployee
 {
     static async Task Main(string[] args)
     {
+        //todo: add and parse settings from json config file
         var adminConfig = new AdminClientConfig { BootstrapServers = "localhost:9092" };
         var schemaRegistryConfig = new SchemaRegistryConfig { Url = "http://localhost:8081" };
-
         var producerConfig = new ProducerConfig
         {
             BootstrapServers = "localhost:9092",
@@ -28,13 +32,13 @@ class EmployeeTimeOff
         {
             await adminClient.CreateTopicsAsync(new[]
             {
-        new TopicSpecification
-        {
-            Name = "leave-applications",
-            ReplicationFactor = 1,
-            NumPartitions = 3
-        }
-    });
+                new TopicSpecification
+                {
+                    Name = "leave-applications",
+                    ReplicationFactor = 1,
+                    NumPartitions = 3
+                }
+            });
         }
         catch (CreateTopicsException e) when (e.Results.Select(r => r.Error.Code)
             .Any(el => el == ErrorCode.TopicAlreadyExists))
