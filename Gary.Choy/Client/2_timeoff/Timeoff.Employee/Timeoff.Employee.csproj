@@ -10,11 +10,6 @@
 		<PackageReference Include="Confluent.Kafka" Version="1.8.2" />
 		<PackageReference Include="Confluent.SchemaRegistry.Serdes.Protobuf" Version="1.8.2" />
 		<PackageReference Include="Google.Protobuf" Version="3.19.1" />
-		<PackageReference Include="Grpc" Version="2.42.0" />
-		<PackageReference Include="Grpc.Tools" Version="2.42.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="ReadLine" Version="2.0.1" />
 	</ItemGroup>
 	<ItemGroup>
